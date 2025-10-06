@@ -87,6 +87,11 @@ func ProcessAllTags(repo *git.Repository, listTags []TagInfo) ([]TagInfo, error)
 func GetNextTag(repo *git.Repository, listTags []TagInfo, tagTo string) plumbing.Hash {
 
 	if tagTo == "" {
+
+		if (len(listTags) == 0) {
+			// Si no hi ha etiquetes, retornem el primer commit del repositori
+			return getFirstCommit(repo)
+		} 
 		// Si no s'ha especificat etiqueta, retornem el primer commit del repositori
 		return GetTagCommit(repo, listTags[0].Name)
 	}

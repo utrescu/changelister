@@ -1,10 +1,11 @@
 # Changelog
 
-Canvis al repositori que shan anat produint durant els cursos
+Canvis al repositori que shan anat produint durant les diferents versions del
+programa.
 {{ range . }}
 ## [{{ .Tag }}] - {{ .Date }}
-
-{{ .Message }}
+{{ if .Message }}
+{{ .Message }}{{ end }}
 {{ range $key, $value := .Commits }}
 ### {{ $key }}
 {{ range $value }}
