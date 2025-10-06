@@ -2,7 +2,9 @@
 
 Canvis al repositori que shan anat produint durant els cursos
 {{ range . }}
-## {{ .Tag }}
+## [{{ .Tag }}] - {{ .Date }}
+
+{{ .Message }}
 {{ range $key, $value := .Commits }}
 ### {{ $key }}
 {{ range $value }}

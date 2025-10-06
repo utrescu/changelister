@@ -26,12 +26,14 @@ type CommitData struct {
 
 type ChangelogData struct {
 	Tag     string
+	Message string
+	Date    string
 	Commits map[string][]CommitData
 }
 
 type Config struct {
-	Path string
-	Tag string
+	Path              string
+	Tag               string
 	CommitTypesToShow []string
 }
 
@@ -113,6 +115,8 @@ func ProcessTagCommits(repo *git.Repository, tags tags.TagInfo, commitTypesToSho
 
 	changelog := ChangelogData{
 		Tag:     tags.Name,
+		Message: tags.Message,
+		Date:    tags.Date,
 		Commits: logs,
 	}
 	return changelog
@@ -133,8 +137,6 @@ func ProcessMessage(commit *object.Commit, commitTypesToShow []string) (CommitDa
 	return CommitData{}, false
 }
 
-
-
 func ProcessMessageAndValidate(message string) (*CommitData, bool) {
 
 	groupCommitTypes := "(" + strings.Join(commitTypes, "|") + ")"
@@ -149,9 +151,8 @@ func ProcessMessageAndValidate(message string) (*CommitData, bool) {
 			Scope:     match[2],
 			Body:      "",
 			Important: match[3] == "!",
-			Author:   "",
-			DateTime: "",
-
+			Author:    "",
+			DateTime:  "",
 		}
 
 		switch data.Type {

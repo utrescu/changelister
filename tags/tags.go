@@ -11,8 +11,19 @@ import (
 
 type TagInfo struct {
 	Name string
+	Message string
+	Date string
 	Start plumbing.Hash
 	Stop  plumbing.Hash
+}
+
+func getTag(llista []TagInfo, name string) (TagInfo, error) {
+	for _, tag := range llista {
+		if tag.Name == name {
+			return tag, nil
+		}
+	}
+	return TagInfo{}, fmt.Errorf("L'etiqueta %s no existeix", name)
 }
 
 
@@ -27,21 +38,24 @@ func ProcessTags(repo *git.Repository, tagTo string) ([]TagInfo, error) {
 	result := []TagInfo{}
 
 	// L'etiqueta ha d'existir
-	if !slices.Contains(listTags, tagTo) {
+	currentTag, err := getTag(listTags,tagTo)
+	if err != nil {
 		log.Printf("L'etiqueta %s no existeix al repositori\n", tagTo)
 		return nil, fmt.Errorf("L'etiqueta %s no existeix al repositori", tagTo)
 	}
 
 	tag1 := TagInfo{
-		Name: tagTo,
+		Name: currentTag.Name,
+		Date: currentTag.Date,
+		Message: currentTag.Message,
 		Start: GetNextTag(repo, listTags, tagTo),
-		Stop: GetTagCommit(repo, tagTo),
+		Stop:  GetTagCommit(repo, tagTo),
 	}
 	result = append(result, tag1)
 	return result, nil
 }
 
-func ProcessAllTags(repo *git.Repository, listTags []string) ([]TagInfo, error) {
+func ProcessAllTags(repo *git.Repository, listTags []TagInfo) ([]TagInfo, error) {
 	result := []TagInfo{}
 
 	slices.Reverse(listTags)
@@ -58,8 +72,10 @@ func ProcessAllTags(repo *git.Repository, listTags []string) ([]TagInfo, error) 
 
 	for _, tag := range listTags {
 		newTag := TagInfo{
-			Name:  tag,
-			Start: GetNextTag(repo, listTags, tag),
+			Name:  tag.Name,
+			Message: tag.Message,
+			Date: tag.Date,
+			Start: GetNextTag(repo, listTags, tag.Name),
 			Stop:  currentEnd,
 		}
 		currentEnd = newTag.Start
@@ -68,16 +84,16 @@ func ProcessAllTags(repo *git.Repository, listTags []string) ([]TagInfo, error) 
 	return result, nil
 }
 
-func GetNextTag(repo *git.Repository, listTags []string, tagTo string) plumbing.Hash {
+func GetNextTag(repo *git.Repository, listTags []TagInfo, tagTo string) plumbing.Hash {
 
 	if tagTo == "" {
 		// Si no s'ha especificat etiqueta, retornem el primer commit del repositori
-		return GetTagCommit(repo, listTags[0])
+		return GetTagCommit(repo, listTags[0].Name)
 	}
 
 	for i := range listTags[:len(listTags)-1] {
-		if listTags[i] == tagTo  {
-			return GetTagCommit(repo, listTags[i+1])
+		if listTags[i].Name == tagTo {
+			return GetTagCommit(repo, listTags[i+1].Name)
 		}
 	}
 	// Si no n'hi ha retornem el primer commit del repostori
@@ -148,8 +164,8 @@ func GetLastCommit(repo *git.Repository) plumbing.Hash {
 	return commit.Hash
 }
 
-func GetRepoTags(repo *git.Repository) []string {
-	tags := []string{}
+func GetRepoTags(repo *git.Repository) []TagInfo {
+	tags := []TagInfo{}
 
 	tagrefs, err := repo.Tags()
 	if err != nil {
@@ -157,7 +173,19 @@ func GetRepoTags(repo *git.Repository) []string {
 	}
 
 	err = tagrefs.ForEach(func(t *plumbing.Reference) error {
-		tags = append(tags, t.Name().Short())
+
+		theTag, err := repo.TagObject(t.Hash())
+		if err != nil {
+			log.Printf("Error obtenint etiqueta %s: %v", t.Name().Short(), err)
+			return nil
+		}
+
+		tags = append(tags, 
+			TagInfo {
+			Name: t.Name().Short(),
+			Message: theTag.Message,
+			Date: theTag.Tagger.When.String(),
+		})
 		return nil
 	})
 
