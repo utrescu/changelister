@@ -21,7 +21,7 @@ func main() {
 		return
 	}
 
-	listTags, err := tags.ProcessTags(repo, config.Tag)
+	listTags, err := tags.ProcessTags(repo, config.Tag, config.DefaultTag)
 	if err != nil {
 		log.Printf("Error: %s", err.Error())
 		return

@@ -1,4 +1,5 @@
 # Configuració per al programa changelister
+defaultTag: "Sense versionar"
 
 # Commits que el programa accepta i els que mostra al changelog
 commitTypes:

@@ -27,12 +27,12 @@ func getTag(llista []TagInfo, name string) (TagInfo, error) {
 }
 
 
-func ProcessTags(repo *git.Repository, tagTo string) ([]TagInfo, error) {
+func ProcessTags(repo *git.Repository, tagTo string, defaultTag string) ([]TagInfo, error) {
 	listTags := GetRepoTags(repo)
 
 	// Si no s'ha especificat etiqueta, les processem totes
 	if tagTo == "" {
-		return ProcessAllTags(repo, listTags)
+		return ProcessAllTags(repo, listTags, defaultTag)
 	} 
 
 	result := []TagInfo{}
@@ -55,13 +55,13 @@ func ProcessTags(repo *git.Repository, tagTo string) ([]TagInfo, error) {
 	return result, nil
 }
 
-func ProcessAllTags(repo *git.Repository, listTags []TagInfo) ([]TagInfo, error) {
+func ProcessAllTags(repo *git.Repository, listTags []TagInfo, defaultTag string) ([]TagInfo, error) {
 	result := []TagInfo{}
 
 	slices.Reverse(listTags)
 
 	firstTag := TagInfo{
-		Name:  "Unversioned",
+		Name:  defaultTag,
 		Start: GetNextTag(repo, listTags, ""),
 		Stop:  GetLastCommit(repo),
 	}

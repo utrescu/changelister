@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Path        string
 	Tag         string
+	DefaultTag  string
 	CommitTypes struct {
 		Show   map[string]string
 	}
