@@ -23,12 +23,14 @@ func LoadConfig() Config {
 
 	pflag.String("path", ".", "Path to the git repository")
 	pflag.String("tag", "", "Tag to start from (latest if empty)")
+	pflag.String("template", "changelog.tmpl", "Template to use for generating the changelog")
 
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
 
 	path := viper.GetString("path")
 	tag := viper.GetString("tag")
+	templateFile := viper.GetString("template")
 
 	// Locate file
 	viper.AddConfigPath(".")
@@ -55,6 +57,7 @@ func LoadConfig() Config {
 
 	config.Path = path
 	config.Tag = tag
+	config.Template.File = templateFile
 
 	return config
 }

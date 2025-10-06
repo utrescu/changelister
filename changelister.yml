@@ -4,7 +4,7 @@ defaultTag: "Sense versionar"
 # Commits que el programa accepta i els que mostra al changelog
 commitTypes:
   # Determina com s'agrupen els tipus de commits i quins són els que es 
-  #mostraran al changelog. Els comentats no s'inclouran al changelog.
+  # mostraran al changelog. Els comentats no s'inclouran al changelog.
   show:
     feat: "Afegit"
     fix: "Corregit"
@@ -18,7 +18,3 @@ commitTypes:
     # build: "Altres"
     # ci: "Altres"
     # revert: "Altres"
-
-# Ruta al fitxer amb la plantilla per generar el changelog
-template:
-  file: changelog.tmpl
