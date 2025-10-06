@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io"
 	"log"
 	"regexp"
@@ -29,22 +28,30 @@ type ChangelogData struct {
 	Commits map[string][]CommitData
 }
 
+type Config struct {
+	Path string
+	Tag string
+	CommitTypesToShow []string
+}
+
 var commitTypes = []string{"feat", "fix", "chore", "docs", "doc", "style", "refactor", "perf", "test", "build", "ci", "revert"}
 
 func main() {
 
-	path := "/home/xavier/work-institut/0-manteniment/Manteniment-Aules"
-	tag := "curs25-26"
-	commitTypesToShow := []string{"feat", "refactor", "docs", "doc"}
+	config := Config{
+		Path:              "/home/xavier/work-institut/0-manteniment/Manteniment-Aules",
+		Tag:               "curs24-25",
+		CommitTypesToShow: []string{"feat", "fix", "refactor", "docs", "doc"},
+	}
 
 	// Obir el repositori
-	repo, err := git.PlainOpen(path)
+	repo, err := git.PlainOpen(config.Path)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 
-	listTags, err := tags.ProcessTags(repo, tag)
+	listTags, err := tags.ProcessTags(repo, config.Tag)
 	if err != nil {
 		log.Printf("Error: %s", err.Error())
 		return
@@ -55,7 +62,7 @@ func main() {
 	for _, tags := range listTags {
 
 		// Processar les dades de l'etiqueta
-		processedTag := ProcessTagCommits(repo, tags, commitTypesToShow)
+		processedTag := ProcessTagCommits(repo, tags, config.CommitTypesToShow)
 		changelogData = append(changelogData, processedTag)
 
 	}
@@ -144,9 +151,10 @@ func ProcessMessageAndValidate(message string) (*CommitData, bool) {
 		switch data.Type {
 		case "doc", "feat":
 			data.Group = "added"
+		case "fix":
+			data.Group = "fixed"
 		case "refactor":
 			data.Group = "changed"
-			data.Group = "fixed"
 		case "chore", "ci", "build":
 			data.Group = "other"
 		}
