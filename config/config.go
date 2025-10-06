@@ -11,8 +11,7 @@ type Config struct {
 	Path        string
 	Tag         string
 	CommitTypes struct {
-		Accepted []string
-		Show     []string
+		Show   map[string]string
 	}
 	Template struct {
 		File string
@@ -22,11 +21,13 @@ type Config struct {
 func LoadConfig() Config {
 
 	pflag.String("path", ".", "Path to the git repository")
+	pflag.String("tag", "", "Tag to start from (latest if empty)")
 
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
 
 	path := viper.GetString("path")
+	tag := viper.GetString("tag")
 
 	// Locate file
 	viper.AddConfigPath(".")
@@ -52,6 +53,7 @@ func LoadConfig() Config {
 	}
 
 	config.Path = path
+	config.Tag = tag
 
 	return config
 }

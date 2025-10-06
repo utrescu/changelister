@@ -1,29 +1,22 @@
-# Etiqueta de la versió de la que es vol fer el changelog
-# Si està buida, es fa des del primer commit
-#Tag: "curs24-25"
-tag: ""
+# Configuració per al programa changelister
 
 # Commits que el programa accepta i els que mostra al changelog
 commitTypes:
-  accepted:
-  - feat
-  - fix
-  - chore
-  - docs
-  - doc
-  - style
-  - refactor
-  - perf
-  - test
-  - build
-  - ci
-  - revert
+  # Determina com s'agrupen els tipus de commits i quins són els que es 
+  #mostraran al changelog. Els comentats no s'inclouran al changelog.
   show:
-  - feat
-  - fix
-  - refactor
-  - docs
-  - doc
+    feat: "Afegit"
+    fix: "Corregit"
+    refactor: "Canviat"
+    docs: "Afegit"
+    doc: "Afegit"
+    # chore: "Altres"
+    # style: "Altres"
+    # perf: "Altres"
+    # test: "Altres"
+    # build: "Altres"
+    # ci: "Altres"
+    # revert: "Altres"
 
 # Ruta al fitxer amb la plantilla per generar el changelog
 template:

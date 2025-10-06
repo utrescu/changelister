@@ -30,7 +30,15 @@ type ChangelogData struct {
 	Commits map[string][]CommitData
 }
 
-func ProcessTagCommits(repo *git.Repository, tags tags.TagInfo, commitTypes []string) ChangelogData {
+func getKeys(m map[string]string) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+func ProcessTagCommits(repo *git.Repository, tags tags.TagInfo, labels map[string]string) ChangelogData {
 
 	chIter, err := repo.Log(&git.LogOptions{
 		From:  tags.Stop,
@@ -58,7 +66,7 @@ func ProcessTagCommits(repo *git.Repository, tags tags.TagInfo, commitTypes []st
 			break
 		}
 
-		log, valid := ProcessMessage(commit, commitTypes)
+		log, valid := ProcessMessage(commit, labels)
 		if valid {
 			if currentLogs, exists := logs[log.Group]; !exists {
 				logs[log.Group] = []CommitData{log}
@@ -78,11 +86,12 @@ func ProcessTagCommits(repo *git.Repository, tags tags.TagInfo, commitTypes []st
 	return changelog
 }
 
-func ProcessMessage(commit *object.Commit, commitTypes []string) (CommitData, bool) {
+func ProcessMessage(commit *object.Commit, labels map[string]string) (CommitData, bool) {
 	newmessage := strings.Trim(commit.Message, " ")
 	newmessage = strings.TrimSuffix(newmessage, "\n")
+	commitTypes := getKeys(labels)
 
-	data, valid := ProcessMessageAndValidate(newmessage, commitTypes)
+	data, valid := ProcessMessageAndValidate(newmessage, commitTypes, labels)
 	if valid {
 		if slices.Contains(commitTypes, data.Type) {
 			data.Author = commit.Author.Name
@@ -93,7 +102,7 @@ func ProcessMessage(commit *object.Commit, commitTypes []string) (CommitData, bo
 	return CommitData{}, false
 }
 
-func ProcessMessageAndValidate(message string, commitTypes []string) (*CommitData, bool) {
+func ProcessMessageAndValidate(message string, commitTypes []string, labels map[string]string) (*CommitData, bool) {
 
 	groupCommitTypes := "(" + strings.Join(commitTypes, "|") + ")"
 	re := regexp.MustCompile(`(?m)` + groupCommitTypes + `\s*(\(.+\))?(!)?:(.*)`)
@@ -111,16 +120,7 @@ func ProcessMessageAndValidate(message string, commitTypes []string) (*CommitDat
 			DateTime:  "",
 		}
 
-		switch data.Type {
-		case "doc", "feat":
-			data.Group = "added"
-		case "fix":
-			data.Group = "fixed"
-		case "refactor":
-			data.Group = "changed"
-		case "chore", "ci", "build":
-			data.Group = "other"
-		}
+		data.Group = labels[data.Type]
 
 		return data, true
 	}
