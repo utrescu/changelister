@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	tags "github.com/utrescu/changelister/tags"
 	template "github.com/utrescu/changelister/template"
 )
@@ -99,7 +100,7 @@ func ProcessTagCommits(repo *git.Repository, tags tags.TagInfo, commitTypesToSho
 			break
 		}
 
-		log, valid := ProcessMessage(commit.Message, commitTypesToShow)
+		log, valid := ProcessMessage(commit, commitTypesToShow)
 		if valid {
 			if currentLogs, exists := logs[log.Group]; !exists {
 				logs[log.Group] = []CommitData{log}
@@ -117,13 +118,15 @@ func ProcessTagCommits(repo *git.Repository, tags tags.TagInfo, commitTypesToSho
 	return changelog
 }
 
-func ProcessMessage(message string, commitTypesToShow []string) (CommitData, bool) {
-	newmessage := strings.Trim(message, " ")
+func ProcessMessage(commit *object.Commit, commitTypesToShow []string) (CommitData, bool) {
+	newmessage := strings.Trim(commit.Message, " ")
 	newmessage = strings.TrimSuffix(newmessage, "\n")
 
 	data, valid := ProcessMessageAndValidate(newmessage)
 	if valid {
 		if slices.Contains(commitTypesToShow, data.Type) {
+			data.Author = commit.Author.Name
+			data.DateTime = commit.Author.When.String()
 			return *data, true
 		}
 	}
@@ -146,6 +149,9 @@ func ProcessMessageAndValidate(message string) (*CommitData, bool) {
 			Scope:     match[2],
 			Body:      "",
 			Important: match[3] == "!",
+			Author:   "",
+			DateTime: "",
+
 		}
 
 		switch data.Type {
