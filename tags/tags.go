@@ -19,55 +19,65 @@ type TagInfo struct {
 func ProcessTags(repo *git.Repository, tagTo string) ([]TagInfo, error) {
 	listTags := GetRepoTags(repo)
 
-	result := []TagInfo{}
-
+	// Si no s'ha especificat etiqueta, les processem totes
 	if tagTo == "" {
-
-		firstTag := TagInfo{
-			Name: "Sense etiqueta",
-			Start: GetPreviousTag(repo, listTags, tagTo),
-			Stop:  GetLastCommit(repo),
-		}
-		result = append(result, firstTag)
-		currentEnd := firstTag.Start
-
-		for _, tag := range listTags {
-			newTag := TagInfo{
-				Name: tag,
-				Start: GetPreviousTag(repo, listTags, tag),
-				Stop:  currentEnd,
-			}
-			currentEnd = newTag.Start
-			result = append(result, newTag)
-		}
-		return result, nil
+		return ProcessAllTags(repo, listTags)
 	} 
+
+	result := []TagInfo{}
 
 	// L'etiqueta ha d'existir
 	if !slices.Contains(listTags, tagTo) {
-		fmt.Printf("L'etiqueta %s no existeix al repositori\n", tagTo)
+		log.Printf("L'etiqueta %s no existeix al repositori\n", tagTo)
 		return nil, fmt.Errorf("L'etiqueta %s no existeix al repositori", tagTo)
 	}
 
 	tag1 := TagInfo{
 		Name: tagTo,
-		Start: GetPreviousTag(repo, listTags, tagTo),
+		Start: GetNextTag(repo, listTags, tagTo),
 		Stop: GetTagCommit(repo, tagTo),
 	}
 	result = append(result, tag1)
 	return result, nil
 }
 
-func GetPreviousTag(repo *git.Repository, listTags []string, tagTo string) plumbing.Hash {
+func ProcessAllTags(repo *git.Repository, listTags []string) ([]TagInfo, error) {
+	result := []TagInfo{}
+
+	slices.Reverse(listTags)
+
+	firstTag := TagInfo{
+		Name:  "Unversioned",
+		Start: GetNextTag(repo, listTags, ""),
+		Stop:  GetLastCommit(repo),
+	}
+	result = append(result, firstTag)
+
+	
+	currentEnd := firstTag.Start
+
+	for _, tag := range listTags {
+		newTag := TagInfo{
+			Name:  tag,
+			Start: GetNextTag(repo, listTags, tag),
+			Stop:  currentEnd,
+		}
+		currentEnd = newTag.Start
+		result = append(result, newTag)
+	}
+	return result, nil
+}
+
+func GetNextTag(repo *git.Repository, listTags []string, tagTo string) plumbing.Hash {
 
 	if tagTo == "" {
 		// Si no s'ha especificat etiqueta, retornem el primer commit del repositori
-		return GetTagCommit(repo, listTags[len(listTags)-1])
+		return GetTagCommit(repo, listTags[0])
 	}
 
-	for i := 0; i < len(listTags); i++ {
-		if listTags[i] == tagTo && i > 0 {
-			return GetTagCommit(repo, listTags[i-1])
+	for i := range listTags[:len(listTags)-1] {
+		if listTags[i] == tagTo  {
+			return GetTagCommit(repo, listTags[i+1])
 		}
 	}
 	// Si no n'hi ha retornem el primer commit del repostori
@@ -99,6 +109,7 @@ func getFirstCommit(repo *git.Repository) plumbing.Hash {
 
 	return commit.Hash
 }
+
 
 func GetTagCommit(repo *git.Repository, tag string) plumbing.Hash {
 	// Obté la referència de l’etiqueta
