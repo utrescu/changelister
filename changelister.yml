@@ -1,0 +1,30 @@
+# Etiqueta de la versió de la que es vol fer el changelog
+# Si està buida, es fa des del primer commit
+#Tag: "curs24-25"
+tag: ""
+
+# Commits que el programa accepta i els que mostra al changelog
+commitTypes:
+  accepted:
+  - feat
+  - fix
+  - chore
+  - docs
+  - doc
+  - style
+  - refactor
+  - perf
+  - test
+  - build
+  - ci
+  - revert
+  show:
+  - feat
+  - fix
+  - refactor
+  - docs
+  - doc
+
+# Ruta al fitxer amb la plantilla per generar el changelog
+template:
+  file: changelog.tmpl

@@ -11,6 +11,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 	tags "github.com/utrescu/changelister/tags"
 	template "github.com/utrescu/changelister/template"
+	config "github.com/utrescu/changelister/config"
 )
 
 type CommitData struct {
@@ -31,21 +32,10 @@ type ChangelogData struct {
 	Commits map[string][]CommitData
 }
 
-type Config struct {
-	Path              string
-	Tag               string
-	CommitTypesToShow []string
-}
-
-var commitTypes = []string{"feat", "fix", "chore", "docs", "doc", "style", "refactor", "perf", "test", "build", "ci", "revert"}
 
 func main() {
 
-	config := Config{
-		Path:              "/home/xavier/work-institut/0-manteniment/Manteniment-Aules",
-		Tag:               "curs24-25",
-		CommitTypesToShow: []string{"feat", "fix", "refactor", "docs", "doc"},
-	}
+	config := config.LoadConfig()
 
 	// Obir el repositori
 	repo, err := git.PlainOpen(config.Path)
@@ -65,7 +55,7 @@ func main() {
 	for _, tags := range listTags {
 
 		// Processar les dades de l'etiqueta
-		processedTag := ProcessTagCommits(repo, tags, config.CommitTypesToShow)
+		processedTag := ProcessTagCommits(repo, tags, config.CommitTypes.Show)
 		changelogData = append(changelogData, processedTag)
 
 	}
@@ -74,7 +64,7 @@ func main() {
 
 }
 
-func ProcessTagCommits(repo *git.Repository, tags tags.TagInfo, commitTypesToShow []string) ChangelogData {
+func ProcessTagCommits(repo *git.Repository, tags tags.TagInfo, commitTypes []string) ChangelogData {
 
 	chIter, err := repo.Log(&git.LogOptions{
 		From:  tags.Stop,
@@ -102,7 +92,7 @@ func ProcessTagCommits(repo *git.Repository, tags tags.TagInfo, commitTypesToSho
 			break
 		}
 
-		log, valid := ProcessMessage(commit, commitTypesToShow)
+		log, valid := ProcessMessage(commit, commitTypes)
 		if valid {
 			if currentLogs, exists := logs[log.Group]; !exists {
 				logs[log.Group] = []CommitData{log}
@@ -122,13 +112,13 @@ func ProcessTagCommits(repo *git.Repository, tags tags.TagInfo, commitTypesToSho
 	return changelog
 }
 
-func ProcessMessage(commit *object.Commit, commitTypesToShow []string) (CommitData, bool) {
+func ProcessMessage(commit *object.Commit, commitTypes []string) (CommitData, bool) {
 	newmessage := strings.Trim(commit.Message, " ")
 	newmessage = strings.TrimSuffix(newmessage, "\n")
 
-	data, valid := ProcessMessageAndValidate(newmessage)
+	data, valid := ProcessMessageAndValidate(newmessage, commitTypes)
 	if valid {
-		if slices.Contains(commitTypesToShow, data.Type) {
+		if slices.Contains(commitTypes, data.Type) {
 			data.Author = commit.Author.Name
 			data.DateTime = commit.Author.When.String()
 			return *data, true
@@ -137,7 +127,7 @@ func ProcessMessage(commit *object.Commit, commitTypesToShow []string) (CommitDa
 	return CommitData{}, false
 }
 
-func ProcessMessageAndValidate(message string) (*CommitData, bool) {
+func ProcessMessageAndValidate(message string, commitTypes []string) (*CommitData, bool) {
 
 	groupCommitTypes := "(" + strings.Join(commitTypes, "|") + ")"
 	re := regexp.MustCompile(`(?m)` + groupCommitTypes + `\s*(\(.+\))?(!)?:(.*)`)
