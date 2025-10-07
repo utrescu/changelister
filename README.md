@@ -63,7 +63,13 @@ You can configure **changelister** using command-line flags or a configuration f
 - `--tags`: Tag to generate Changelog (all tags if empty or not provided)
 - `--template`: Template to use for generating the changelog (default `changelister.yml`)
 
-The basic configuration is provided in the YAML file. Mist be on the current path or in `$HOME\.changelister`
+The file configuration is located in this order:
+
+- Current folder
+- `$XDG_CONFIG_HOME/changelister` if is defined
+- `$HOME/.config/changelister`
+
+The basic configuration is provided in a YAML file named `config.yaml`:
 
 ```yaml
 # Configuració per al programa changelister
@@ -90,6 +96,26 @@ commitTypes:
     # revert: "Other"
 
 ```
+
+## Templates
+
+The Change log is generated using the `template/text` format.
+
+The name of the template can be provided via command line:
+
+```bash
+changelister --template foo.tmpl
+```
+
+The file is searched in the folders with this precedence:
+
+- Current folder
+- `$XDG_DATA_DIR/changelister` if is defined
+- `$HOME/.local/share/changelister` folder
+
+### Templates creation
+
+TODO
 
 ## Example
 

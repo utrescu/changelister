@@ -8,6 +8,8 @@ programa.
 
 ### Afegit
 
+- Adapta la configuració i les dades a XDG Base Directory
+- Afegeix README i CHANGELOG
 - Permet definir la plantilla com a paràmetre
 - Permet personalitzar l'etiqueta Unversioned
 - Defineix com s'agrupen els tipus de commits
