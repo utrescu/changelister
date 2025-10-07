@@ -12,7 +12,11 @@ import (
 
 func main() {
 
-	config := config.LoadConfig()
+	config, err := config.LoadConfig()
+	if err != nil {
+		log.Printf("Error loading config: %s", err.Error())
+		return
+	}
 
 	// Obir el repositori
 	repo, err := git.PlainOpen(config.Path)
@@ -37,6 +41,10 @@ func main() {
 
 	}
 
-	template.ProcessTemplate("changelog.tmpl", "changelog.md", changelogData)
+	err = template.ProcessTemplate(config.Template.File, "changelog.md", changelogData)
+	if err != nil {
+		log.Printf("Error processing template: %s", err.Error())
+		return
+	}
 
 }
