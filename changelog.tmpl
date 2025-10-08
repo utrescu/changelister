@@ -9,5 +9,5 @@ programa.
 {{ range $key, $value := .Commits }}
 ### {{ $key }}
 {{ range $value }}
--{{ .Header }}{{ end }}
+- {{ .Header }}{{ end }}
 {{ end }}{{ end }}

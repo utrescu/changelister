@@ -87,11 +87,10 @@ func ProcessTagCommits(repo *git.Repository, tags tags.TagInfo, labels map[strin
 }
 
 func ProcessMessage(commit *object.Commit, labels map[string]string) (CommitData, bool) {
-	newmessage := strings.Trim(commit.Message, " ")
-	newmessage = strings.TrimSuffix(newmessage, "\n")
+
 	commitTypes := getKeys(labels)
 
-	data, valid := ProcessMessageAndValidate(newmessage, commitTypes, labels)
+	data, valid := ParseCommitMessage(commit.Message, commitTypes, labels)
 	if valid {
 		if slices.Contains(commitTypes, data.Type) {
 			data.Author = commit.Author.Name
@@ -102,10 +101,37 @@ func ProcessMessage(commit *object.Commit, labels map[string]string) (CommitData
 	return CommitData{}, false
 }
 
-func ProcessMessageAndValidate(message string, commitTypes []string, labels map[string]string) (*CommitData, bool) {
+func ParseCommitMessage(commitMessage string, commitTypes []string, labels map[string]string) (*CommitData, bool) {
+
+	lines := strings.Split(commitMessage, "\n")
+
+	if len(lines) == 0 {
+		return nil, false
+	}
+
+	// The first line is the header
+	header := lines[0]
+
+	data, valid := SplitHeaderAndValidate(header, commitTypes)
+
+	if !valid {
+		return nil, false
+	}
+	// The rest is the body
+	data.Body = strings.Join(lines[1:], "\n")
+	data.Group = labels[data.Type]
+
+	breaking := strings.Contains(data.Body, "BREAKING CHANGE") || strings.Contains(data.Body, "BREAKING-CHANGE")
+	data.Important = data.Important || breaking
+
+
+	return data, true
+}
+
+func SplitHeaderAndValidate(message string, commitTypes []string) (*CommitData, bool) {
 
 	groupCommitTypes := "(" + strings.Join(commitTypes, "|") + ")"
-	re := regexp.MustCompile(`(?m)` + groupCommitTypes + `\s*(\(.+\))?(!)?:(.*)`)
+	re := regexp.MustCompile(`(?m)` + groupCommitTypes + `\s*(\(.+\))?(!)?: (.*)`)
 
 	match := re.FindStringSubmatch(message)
 
@@ -119,9 +145,6 @@ func ProcessMessageAndValidate(message string, commitTypes []string, labels map[
 			Author:    "",
 			DateTime:  "",
 		}
-
-		data.Group = labels[data.Type]
-
 		return data, true
 	}
 	return nil, false
