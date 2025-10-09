@@ -62,7 +62,7 @@ func locateTemplateFile(filename string) (string, error) {
 func defineFlags() {
 	pflag.String("path", ".", "Path to the git repository")
 	pflag.String("tag", "", "Tag to start from (latest if empty)")
-	pflag.String("template", DefaultTemplateFile, "Template to use for generating the changelog")
+	pflag.String("templatefile", DefaultTemplateFile, "Template to use for generating the changelog")
 }
 
 func addDefaultConfigDirs() {
@@ -93,7 +93,7 @@ func LoadConfig() (Config, error) {
 	viper.BindPFlags(pflag.CommandLine)
 	path := viper.GetString("path")
 	tag := viper.GetString("tag")
-	templateFile = viper.GetString("template")
+	templateFile = viper.GetString("templatefile")
 
 	addDefaultConfigDirs()	
 	viper.SetConfigName(configurationName)
@@ -102,7 +102,7 @@ func LoadConfig() (Config, error) {
 	addEnvironmentConfiguration()
 
 	viper.SetDefault("tag", "")
-	viper.SetDefault("template.file", templateFile)
+
 
 	if err := viper.ReadInConfig(); err != nil {
 		panic(err)
