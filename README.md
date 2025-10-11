@@ -59,7 +59,7 @@ Or create a ChangeLog from one single Tag
 
 You can configure **changelister** using command-line flags or a configuration file. Common options include:
 
-- `--path`: path to the Git repository. Current directori if not defined
+- `--path`: path to the Git repository. Current directory if not defined
 - `--tags`: Tag to generate Changelog (all tags if empty or not provided)
 - `--templatefile`: Template to use for generating the changelog (default `changelister.yml`)
 
@@ -115,7 +115,9 @@ The file is searched in the folders with this precedence:
 
 ### Templates creation
 
-Templates are provided to the appropriate functions either as string or as “raw string”. Actions represents the data evaluations, functions or control loops. They’re delimited by `{{ }}`. Other, non delimited parts are left untouched.
+Templates are provided to the appropriate functions either as string or as “raw
+string”. Actions represents the data evaluations, functions or control loops. 
+They’re delimited by `{{ }}`. Other, non-delimited parts are left untouched.
 
 - To obtain data the `{{ .FieldName }}` will replace it with FieldName value of given struct.
 - The {{.}} action refers to a value of non-struct types.
@@ -126,29 +128,29 @@ Templates are provided to the appropriate functions either as string or as “ra
 
 Search `golang template/text` for more info.
 
-#### Programa fieldnames
+#### Program field names
 
 The FieldNames defined in the program are a **list** of tags:
 
-| FieldName | Content                               |
-| --------- | ------------------------------------- |
-| Tag       | Tag of the repository                 |
-| Message   | Tag message                           |
-| Date      | Tag creation date                     |
-| Commits   | List of commits grouped by label      |
+| FieldName | Content                          |
+|-----------|----------------------------------|
+| Tag       | Tag of the repository            |
+| Message   | Tag message                      |
+| Date      | Tag creation date                |
+| Commits   | List of commits grouped by label |
 
 Each commit have some FieldNames:
 
-| FieldName | Content                                |
-| --------- | -------------------------------------- |
-| Type      | Type of the commit (feat, docs, ...)   |
-| Header    | Message of the commit header           |
-| Scope     | Commit scope                           |
-| Body      | Commit Body                            |
-| Author    | Commit Author                          |
-| DateTime  | Commit Date                            |
-| Important | The Commit is a breaking change?       |
-| Group     | Commit Group text                      |
+| FieldName | Content                              |
+|-----------|--------------------------------------|
+| Type      | Type of the commit (feat, docs, ...) |
+| Header    | Message of the commit header         |
+| Scope     | Commit scope                         |
+| Body      | Commit Body                          |
+| Author    | Commit Author                        |
+| DateTime  | Commit Date                          |
+| Important | The Commit is a breaking change?     |
+| Group     | Commit Group text                    |
 
 Example: List Repository Git Tags (With the Unversioned text):
 

@@ -58,21 +58,21 @@ func ProcessTagCommits(repo *git.Repository, tags tags.TagInfo, labels map[strin
 		}
 
 		if err != nil {
-			log.Fatalf("Error iterant commits: %v", err)
+			log.Fatalf("error iterating commits: %v", err)
 		}
 
-		// Si arribem al commit antic, parem
+		// Stop in first commit
 		if commit.Hash == tags.Start {
 			break
 		}
 
-		log, valid := ProcessMessage(commit, labels)
+		messageLog, valid := ProcessMessage(commit, labels)
 		if valid {
-			if currentLogs, exists := logs[log.Group]; !exists {
-				logs[log.Group] = []CommitData{log}
+			if currentLogs, exists := logs[messageLog.Group]; !exists {
+				logs[messageLog.Group] = []CommitData{messageLog}
 			} else {
-				currentLogs = append(currentLogs, log)
-				logs[log.Group] = currentLogs
+				currentLogs = append(currentLogs, messageLog)
+				logs[messageLog.Group] = currentLogs
 			}
 		}
 	}
@@ -123,7 +123,6 @@ func ParseCommitMessage(commitMessage string, commitTypes []string, labels map[s
 
 	breaking := strings.Contains(data.Body, "BREAKING CHANGE") || strings.Contains(data.Body, "BREAKING-CHANGE")
 	data.Important = data.Important || breaking
-
 
 	return data, true
 }

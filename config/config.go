@@ -74,14 +74,13 @@ func addDefaultConfigDirs() {
 	viper.AddConfigPath(".")
 }
 
-func addEnvironmentConfiguration() {		
+func addEnvironmentConfiguration() {
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix("CHANGELISTER_")
-	// this is useful e.g. want to use . in Get() calls, but environmental 
+	// this is useful e.g. want to use . in Get() calls, but environmental
 	// variables to use _ delimiters (e.g. app.port -> APP_PORT)
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_")) 
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 }
-
 
 func LoadConfig() (Config, error) {
 
@@ -90,19 +89,21 @@ func LoadConfig() (Config, error) {
 
 	defineFlags()
 	pflag.Parse()
-	viper.BindPFlags(pflag.CommandLine)
+	err := viper.BindPFlags(pflag.CommandLine)
+	if err != nil {
+		return Config{}, err
+	}
 	path := viper.GetString("path")
 	tag := viper.GetString("tag")
 	templateFile = viper.GetString("templatefile")
 
-	addDefaultConfigDirs()	
+	addDefaultConfigDirs()
 	viper.SetConfigName(configurationName)
 	viper.SetConfigType("yaml")
 
 	addEnvironmentConfiguration()
 
 	viper.SetDefault("tag", "")
-
 
 	if err := viper.ReadInConfig(); err != nil {
 		panic(err)

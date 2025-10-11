@@ -1,20 +1,18 @@
-# Configuració per al programa changelister
-defaultTag: "Sense versionar"
+# Configuration
+defaultTag: "Unversioned"
 
-# Commits que el programa accepta i els que mostra al changelog
+# Commits to use in changelog and how they will be grouped
 commitTypes:
-  # Determina com s'agrupen els tipus de commits i quins són els que es 
-  # mostraran al changelog. Els comentats no s'inclouran al changelog.
   show:
-    feat: "Afegit"
-    fix: "Corregit"
-    refactor: "Canviat"
-    docs: "Afegit"
-    doc: "Afegit"
-    # chore: "Altres"
-    # style: "Altres"
-    # perf: "Altres"
-    # test: "Altres"
-    # build: "Altres"
-    # ci: "Altres"
-    # revert: "Altres"
+    feat: "Added"
+    fix: "Fixed"
+    refactor: "Changed"
+    docs: "Added"
+    doc: "Added"
+    # chore: "Other"
+    # style: "Other"
+    # perf: "Other"
+    # test: "Other"
+    # build: "Other"
+    # ci: "Other"
+    # revert: "Other"

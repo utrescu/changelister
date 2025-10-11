@@ -8,6 +8,9 @@ programa.
 
 ### Afegit
 
+- Afegeix informació sobre com crear plantilles
+- Emplena els camps Breaking i Body del missatge
+- explica com localitzar els fitxers de plantilles i configuració
 - Adapta la configuració i les dades a XDG Base Directory
 - Afegeix README i CHANGELOG
 - Permet definir la plantilla com a paràmetre
@@ -26,4 +29,5 @@ programa.
 
 ### Corregit
 
+- Permet especificar la plantilla des de línia de comandes
 - Si no hi ha etiquetes també genera resultats
