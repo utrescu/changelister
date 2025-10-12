@@ -69,7 +69,8 @@ The file configuration is located in this order:
 - `$XDG_CONFIG_HOME/changelister` if is defined
 - `$HOME/.config/changelister`
 
-The basic configuration is provided in a YAML file named `config.yaml`:
+The basic configuration can be provided in a YAML file named `config.yaml`. If the file is not
+found, a default configuration is provided
 
 ```yaml
 # Configuració per al programa changelister
