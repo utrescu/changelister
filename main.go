@@ -14,7 +14,7 @@ func main() {
 
 	configuration, err := config.LoadConfig()
 	if err != nil {
-		log.Printf("Error loading config: %s", err.Error())
+		log.Printf("Configuration error: %s", err.Error())
 		return
 	}
 

@@ -24,6 +24,36 @@ type Config struct {
 	}
 }
 
+func NewDefaultConfig(path string, tag string, templateFile string) (Config, error) {
+
+	if templateFile == "" {
+		templateFile = DefaultTemplateFile
+	}
+
+	config := Config{
+		Path:       path,
+		Tag:        tag,
+		DefaultTag: "Unversioned",
+		CommitTypes: struct {
+			Show map[string]string
+		}{
+			Show: map[string]string{
+				"feat":     "Added",
+				"fix":      "Fixed",
+				"docs":     "Added",
+				"refactor": "Changed",
+			},
+		},
+	}
+
+	dataDir, err := locateTemplateFile(templateFile)
+	if err != nil {
+		return Config{}, err
+	}
+	config.Template.File = dataDir
+	return config, nil
+}
+
 func fileExists(filePath string) (bool, error) {
 	info, err := os.Stat(filePath)
 	if err == nil {
@@ -66,12 +96,12 @@ func defineFlags() {
 }
 
 func addDefaultConfigDirs() {
+	viper.AddConfigPath(".")
 	if file, ok := os.LookupEnv("XDG_CONFIG_HOME"); ok {
 		viper.AddConfigPath(file)
 	} else if home, ok := os.LookupEnv("HOME"); ok {
 		viper.AddConfigPath(home + "/.config/changelister")
 	}
-	viper.AddConfigPath(".")
 }
 
 func addEnvironmentConfiguration() {
@@ -106,7 +136,14 @@ func LoadConfig() (Config, error) {
 	viper.SetDefault("tag", "")
 
 	if err := viper.ReadInConfig(); err != nil {
-		panic(err)
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			// Config file not found;
+			return NewDefaultConfig(path, tag, templateFile)
+		} else {
+			// Config file was found but another error was produced
+			panic(err)
+		}
+
 	}
 
 	var config Config
